@@ -1,36 +1,8 @@
 import { Box, Button, Text, TextField, Image } from "@skynexui/components";
 import appConfig from "../config.json";
-
-function GlobalStyle() {
-	return (
-		<style global jsx>{`
-			* {
-				margin: 0;
-				padding: 0;
-				box-sizing: border-box;
-				list-style: none;
-			}
-			body {
-				font-family: "Open Sans", sans-serif;
-			}
-			/* App fit Height */
-			html,
-			body,
-			#__next {
-				min-height: 100vh;
-				display: flex;
-				flex: 1;
-			}
-			#__next {
-				flex: 1;
-			}
-			#__next > * {
-				flex: 1;
-			}
-			/* ./App fit Height */
-		`}</style>
-	);
-}
+import { useState } from "react";
+import { useRouter } from "next/router";
+//import { useFormik } from "formik";
 
 function Title(props) {
 	const Tag = props.tag || "h1";
@@ -63,19 +35,33 @@ function Title(props) {
 // export default HomePage;
 
 export default function HomePage() {
-	const username = "leoopl";
+	const STANDERT_USER = "/user1.jpg";
+	const [username, setUsername] = useState("");
+	const [image, setImage] = useState(STANDERT_USER);
+	const router = useRouter();
+
+	const handleChange = (e) => {
+		let name = e.target.value;
+		console.log(name.onerror);
+		if (name.length <= 2 || name == 404) {
+			setImage(STANDERT_USER);
+		} else {
+			setImage(`https://github.com/${name}.png`);
+		}
+		setUsername(name);
+	};
 
 	return (
 		<>
-			<GlobalStyle />
 			<Box
 				styleSheet={{
 					display: "flex",
 					alignItems: "center",
 					justifyContent: "center",
 					backgroundColor: appConfig.theme.colors.neutrals[100],
-					backgroundImage:
-						"url(https://i.ibb.co/8jdSQGP/1641024405081.png)",
+					backgroundImage: "url(/background.png)",
+					// backgroundImage:
+					// 	"url(https://i.ibb.co/8jdSQGP/1641024405081.png)",
 					backgroundRepeat: "no-repeat",
 					backgroundSize: "cover",
 					backgroundBlendMode: "multiply",
@@ -102,6 +88,12 @@ export default function HomePage() {
 					{/* Formulário */}
 					<Box
 						as="form"
+						onSubmit={function handleSubmit(e) {
+							e.preventDefault();
+							//passagem de pagina mais direta e leve
+							router.push("/chat");
+							//window.location.href = "/chat";
+						}}
 						styleSheet={{
 							display: "flex",
 							flexDirection: "column",
@@ -124,6 +116,9 @@ export default function HomePage() {
 						</Text>
 
 						<TextField
+							//entrada de texto. {username}
+							value={username}
+							onChange={handleChange}
 							fullWidth
 							textFieldColors={{
 								neutral: {
@@ -140,6 +135,7 @@ export default function HomePage() {
 						/>
 						<Button
 							type="submit"
+							disabled={username.length < 3}
 							label="Entrar"
 							fullWidth
 							buttonColors={{
@@ -164,7 +160,7 @@ export default function HomePage() {
 							maxWidth: "200px",
 							padding: "16px",
 							//backgroundColor:
-							//	appConfig.theme.colors.neutrals[800],
+							//appConfig.theme.colors.neutrals[800],
 							//border: "1px solid",
 							borderColor: appConfig.theme.colors.neutrals[999],
 							borderRadius: "10px",
@@ -177,7 +173,7 @@ export default function HomePage() {
 								borderRadius: "50%",
 								marginBottom: "16px",
 							}}
-							src={`https://github.com/${username}.png`}
+							src={image}
 						/>
 						<Text
 							variant="body4"
