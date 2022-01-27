@@ -1,4 +1,11 @@
-import { Box, Text, TextField, Image, Button } from "@skynexui/components";
+import {
+  Box,
+  Text,
+  TextField,
+  Image,
+  Button,
+  Icon,
+} from "@skynexui/components";
 import React, { useState } from "react";
 import appConfig from "../config.json";
 
@@ -228,15 +235,22 @@ function MessageList(props) {
               >
                 {new Date().toLocaleDateString()}
               </Text>
-              <Button
-                iconName="FaTrash"
-                variant="tertiary"
-                colorVariant="neutral"
+              <Box
+                styleSheet={{
+                  margin: "14px",
+                  display: "inline-block",
+                  position: "absolute",
+                  alignSelf: "center",
+                  width: "14px",
+                  right: "24px",
+                }}
                 onClick={(e) => {
                   e.preventDefault();
                   handleDelete(mensagem.id);
                 }}
-              />
+              >
+                <Icon name="FaTrash" />
+              </Box>
             </Box>
             {mensagem.text}
           </Text>
