@@ -1,9 +1,10 @@
 # Alucord Cyberpunk
 
 Criado para aprendizado e estudo com intuito demonstrar uma breve simulação de um chat de texto.
+
 Projeto realizado junto a Imersão React criada pela @alura e apresentada pelo @omariosouto e @peas.
 
-## 🚀 Rodando <nome_do_projeto>
+## 🚀 Rodando Alucord Cyberpunk
 
 ```
 git clone https://github.com/leoopl/aluracord-cyberpunk.git

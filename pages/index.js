@@ -1,6 +1,6 @@
 import { Box, Button, Text, TextField, Image } from "@skynexui/components";
 import appConfig from "../config.json";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 //import { useFormik } from "formik";
 
@@ -47,6 +47,7 @@ function Title(props) {
 
 export default function HomePage() {
   const STANDERT_USER = "/user1.png";
+  const [data, setData] = useState([]);
   const [username, setUsername] = useState("");
   const [image, setImage] = useState(STANDERT_USER);
   const router = useRouter();
@@ -62,7 +63,15 @@ export default function HomePage() {
     setUsername(name);
   };
 
-  // const handleDelete
+  useEffect(() => {
+    if (username.length > 2) {
+      fetch(`https://api.github.com/users/${username}`).then(
+        async (resposta) => {
+          setData(await resposta.json());
+        }
+      );
+    }
+  }, [username]);
 
   return (
     <>
@@ -190,7 +199,7 @@ export default function HomePage() {
                 borderRadius: "1000px",
               }}
             >
-              {username}
+              {data.name}
             </Text>
           </Box>
           {/* Photo Area */}

@@ -6,12 +6,22 @@ import {
   Button,
   Icon,
 } from "@skynexui/components";
-import React, { useState } from "react";
+import Link from "next/link";
+import React, { useState, useEffect } from "react";
 import appConfig from "../config.json";
+import { createClient } from "@supabase/supabase-js";
+import { Popover, Avatar, StyledBadge } from "@mui/material";
+
+const SUBABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzI5MzY3NywiZXhwIjoxOTU4ODY5Njc3fQ.slHZkWYaJXLdEZJXoQdj-LQhO6W7DlDYP_Zv2K0deNs";
+const SUBABASE_URL = "https://mfjugxthqktjnncajdvc.supabase.co";
+const supabaseClient = createClient(SUBABASE_URL, SUBABASE_ANON_KEY);
 
 export default function ChatPage() {
   const [mensagem, setMensagem] = useState("");
   const [listMensagem, setListMensagem] = useState([]);
+  const [popUp, setPopUp] = useState(null);
+  const open = Boolean(popUp);
 
   /*
   Sua lógica vai aqui
@@ -27,13 +37,31 @@ export default function ChatPage() {
   ./Sua lógica vai aqui
   */
 
+  useEffect(() => {
+    supabaseClient
+      .from("Mensagens")
+      .select("*")
+      .order("id", { ascending: false })
+      .then(({ data }) => {
+        //console.log("roda tudo ai", data);
+        setListMensagem(data);
+      });
+  }, []);
+
   function handleKeyPress(newMensagem) {
     const mensagem = {
-      id: listMensagem.length + 1,
+      //id: listMensagem.length + 1,
       from: "leoopl",
       text: newMensagem,
     };
-    setListMensagem([mensagem, ...listMensagem]);
+
+    supabaseClient
+      .from("Mensagens")
+      .insert([mensagem])
+      .then(({ data }) => {
+        setListMensagem([data[0], ...listMensagem]);
+      });
+
     setMensagem("");
   }
 
@@ -82,6 +110,9 @@ export default function ChatPage() {
           <MessageList
             mensagens={listMensagem}
             setListMensagem={setListMensagem}
+            popUp={popUp}
+            setPopUp={setPopUp}
+            open={open}
           />
 
           {/* {listMensagem.map((mensagemAtual) => {
@@ -214,7 +245,57 @@ function MessageList(props) {
                 marginBottom: "8px",
               }}
             >
-              <Image
+              {/* ___________________________________ */}
+
+              <Avatar
+                aria-owns={open ? "mouse-over-popover" : undefined}
+                aria-haspopup="true"
+                onMouseEnter={(e) => {
+                  props.setPopUp(
+                    // gambiarras feelings
+                    e.currentTarget.children[0].src
+                      .split("com/")[1]
+                      .split(".")[0]
+                  );
+                }}
+                onMouseLeave={() => {
+                  props.setPopUp(null);
+                }}
+                alt="Remy Sharp"
+                src={`https://github.com/${mensagem.from}.png`}
+              />
+
+              <Popover
+                open={props.open}
+                id="mouse-over-popover"
+                sx={{
+                  pointerEvents: "none",
+                }}
+                open={props.open}
+                anchorEl={props.popUp}
+                anchorOrigin={{
+                  vertical: "center",
+                  horizontal: "center",
+                }}
+                transformOrigin={{
+                  vertical: "center",
+                  horizontal: "center",
+                }}
+                onClose={() => {
+                  props.setPopUp(null);
+                }}
+                disableRestoreFocus
+                transitionDuration={(100, 100, 0)}
+              >
+                <Avatar
+                  variant="rounded"
+                  sx={{ width: 200, height: 200 }}
+                  alt="Remy Sharp"
+                  src={`https://github.com/${props.popUp}.png`}
+                />
+              </Popover>
+              {/* ___________________________________ */}
+              {/* <Image
                 styleSheet={{
                   width: "20px",
                   height: "20px",
@@ -222,8 +303,8 @@ function MessageList(props) {
                   display: "inline-block",
                   marginRight: "8px",
                 }}
-                src={`https://github.com/leoopl.png`}
-              />
+                src={`https://github.com/${mensagem.from}.png`}
+              /> */}
               <Text tag="strong">{mensagem.from}</Text>
               <Text
                 styleSheet={{
@@ -235,6 +316,7 @@ function MessageList(props) {
               >
                 {new Date().toLocaleDateString()}
               </Text>
+
               <Box
                 styleSheet={{
                   margin: "14px",
