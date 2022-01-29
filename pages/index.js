@@ -56,6 +56,7 @@ export default function HomePage() {
     let name = e.target.value;
 
     if (name.length <= 2 || name === 404) {
+      // CORRIGIR A IMAGEM AO RECEBER 404 ----------------------------------------
       setImage(STANDERT_USER);
     } else {
       setImage(`https://github.com/${name}.png`);
@@ -71,6 +72,7 @@ export default function HomePage() {
         }
       );
     }
+    // CORRIGIR O USERNAME AO APAGAR O NOME DO USUARIO-----------------------------------
   }, [username]);
 
   return (
@@ -113,7 +115,7 @@ export default function HomePage() {
             onSubmit={function handleSubmit(e) {
               e.preventDefault();
               //passagem de pagina mais direta e leve
-              router.push("/chat");
+              router.push(`/chat?username=${username}`);
               //window.location.href = "/chat";
             }}
             styleSheet={{
@@ -199,7 +201,7 @@ export default function HomePage() {
                 borderRadius: "1000px",
               }}
             >
-              {data.name}
+              {data.name || data.login}
             </Text>
           </Box>
           {/* Photo Area */}

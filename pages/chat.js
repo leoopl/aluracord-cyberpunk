@@ -6,11 +6,13 @@ import {
   Button,
   Icon,
 } from "@skynexui/components";
-import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import appConfig from "../config.json";
 import { createClient } from "@supabase/supabase-js";
 import { Popover, Avatar, StyledBadge } from "@mui/material";
+import { useRouter } from "next/router";
+import { ButtonSendSticker } from "../src/components/ButtonSendSticker";
+import SendIcon from "@mui/icons-material/Send";
 
 const SUBABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzI5MzY3NywiZXhwIjoxOTU4ODY5Njc3fQ.slHZkWYaJXLdEZJXoQdj-LQhO6W7DlDYP_Zv2K0deNs";
@@ -18,24 +20,21 @@ const SUBABASE_URL = "https://mfjugxthqktjnncajdvc.supabase.co";
 const supabaseClient = createClient(SUBABASE_URL, SUBABASE_ANON_KEY);
 
 export default function ChatPage() {
+  const router = useRouter();
+  const currentUser = router.query.username;
   const [mensagem, setMensagem] = useState("");
   const [listMensagem, setListMensagem] = useState([]);
   const [popUp, setPopUp] = useState(null);
   const open = Boolean(popUp);
 
-  /*
-  Sua lógica vai aqui
-  -- mensagem escrita do usuario textarea
-  -- enter para enviar
-  -- adicionar a menssagem na listagem
-
-  dev:
-  -- campo de mensagem [states]
-  -- usar o onChange e o useState (ter if caso seja enter pra limpar a variavel)
-  -- lista de mensagens
-
-  ./Sua lógica vai aqui
-  */
+  function realTimeMensage(addNewMensage) {
+    return supabaseClient
+      .from("Mensagens")
+      .on("INSERT", (realTime) => {
+        addNewMensage(realTime.new);
+      })
+      .subscribe();
+  }
 
   useEffect(() => {
     supabaseClient
@@ -46,12 +45,17 @@ export default function ChatPage() {
         //console.log("roda tudo ai", data);
         setListMensagem(data);
       });
+    realTimeMensage((newMensage) => {
+      setListMensagem((currentListValue) => {
+        return [newMensage, ...currentListValue];
+      });
+    });
   }, []);
 
   function handleKeyPress(newMensagem) {
     const mensagem = {
       //id: listMensagem.length + 1,
-      from: "leoopl",
+      from: currentUser,
       text: newMensagem,
     };
 
@@ -59,7 +63,7 @@ export default function ChatPage() {
       .from("Mensagens")
       .insert([mensagem])
       .then(({ data }) => {
-        setListMensagem([data[0], ...listMensagem]);
+        // setListMensagem([data[0], ...listMensagem]);
       });
 
     setMensagem("");
@@ -94,7 +98,7 @@ export default function ChatPage() {
           opacity: 0.85,
         }}
       >
-        <Header />
+        <Header currentUser={currentUser} />
         <Box
           styleSheet={{
             position: "relative",
@@ -153,18 +157,42 @@ export default function ChatPage() {
                 marginRight: "12px",
                 color: appConfig.theme.colors.neutrals[200],
               }}
-            />
+            ></TextField>
+            {/* COLOCAR O BOTÃO DE SEND DENTRO DA CAIXA DE MENSAGEM ------------------------------------------------- */}
 
             <Button
+              styleSheet={{
+                borderRadius: "50%",
+                padding: "0 3px 0 0",
+                minWidth: "50px",
+                minHeight: "50px",
+                fontSize: "20px",
+                marginBottom: "8px",
+                lineHeight: "0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: appConfig.theme.colors.neutrals[300],
+                hover: {
+                  filter: "grayscale(0)",
+                },
+                left: "-5px",
+              }}
               onClick={(e) => {
                 e.preventDefault();
                 handleKeyPress(mensagem);
               }}
               disabled={mensagem.length < 1}
-              label="Send"
+              label={<SendIcon />}
               variant="tertiary"
               colorVariant="light"
               rounded="full"
+            />
+
+            <ButtonSendSticker
+              onStickerClick={(sticker) => {
+                handleKeyPress(":sticker:" + sticker);
+              }}
             />
           </Box>
         </Box>
@@ -173,7 +201,7 @@ export default function ChatPage() {
   );
 }
 
-function Header() {
+function Header(props) {
   return (
     <>
       <Box
@@ -192,7 +220,7 @@ function Header() {
             height: "40px",
             borderRadius: "50%",
           }}
-          src={`https://github.com/leoopl.png`}
+          src={`https://github.com/${props.currentUser}.png`}
         />
         <Button
           variant="tertiary"
@@ -245,8 +273,6 @@ function MessageList(props) {
                 marginBottom: "8px",
               }}
             >
-              {/* ___________________________________ */}
-
               <Avatar
                 aria-owns={open ? "mouse-over-popover" : undefined}
                 aria-haspopup="true"
@@ -260,6 +286,9 @@ function MessageList(props) {
                 }}
                 onMouseLeave={() => {
                   props.setPopUp(null);
+                }}
+                onClick={() => {
+                  location.href = `https://github.com/${props.popUp}`;
                 }}
                 alt="Remy Sharp"
                 src={`https://github.com/${mensagem.from}.png`}
@@ -294,17 +323,6 @@ function MessageList(props) {
                   src={`https://github.com/${props.popUp}.png`}
                 />
               </Popover>
-              {/* ___________________________________ */}
-              {/* <Image
-                styleSheet={{
-                  width: "20px",
-                  height: "20px",
-                  borderRadius: "50%",
-                  display: "inline-block",
-                  marginRight: "8px",
-                }}
-                src={`https://github.com/${mensagem.from}.png`}
-              /> */}
               <Text tag="strong">{mensagem.from}</Text>
               <Text
                 styleSheet={{
@@ -317,14 +335,36 @@ function MessageList(props) {
                 {new Date().toLocaleDateString()}
               </Text>
 
-              <Box
+              <Icon
+                name="FaTrash"
+                styleSheet={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  margin: "14px",
+                  width: "14px",
+                  right: "24px",
+                  position: "absolute",
+                  alignSelf: "center",
+                  justifyContent: "space-between",
+                  hover: { color: "reds" },
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDelete(mensagem.id);
+                }}
+              />
+              {/* <Box
                 styleSheet={{
                   margin: "14px",
-                  display: "inline-block",
+                  display: "flex",
                   position: "absolute",
                   alignSelf: "center",
                   width: "14px",
                   right: "24px",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
                 onClick={(e) => {
                   e.preventDefault();
@@ -332,9 +372,13 @@ function MessageList(props) {
                 }}
               >
                 <Icon name="FaTrash" />
-              </Box>
+              </Box> */}
             </Box>
-            {mensagem.text}
+            {mensagem.text.startsWith(":sticker:") ? (
+              <Image src={mensagem.text.replace(":sticker:", "")} />
+            ) : (
+              mensagem.text
+            )}
           </Text>
         );
       })}
