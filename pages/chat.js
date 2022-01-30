@@ -272,6 +272,8 @@ function MessageList(props) {
             <Box
               styleSheet={{
                 marginBottom: "8px",
+                display: "flex",
+                alignItems: "center",
               }}
             >
               <Avatar
@@ -324,7 +326,9 @@ function MessageList(props) {
                   src={`https://github.com/${props.popUp}.png`}
                 />
               </Popover>
-              <Text tag="strong">{mensagem.from}</Text>
+              <Text tag="strong" styleSheet={{ marginLeft: "8px" }}>
+                {mensagem.from}
+              </Text>
               <Text
                 styleSheet={{
                   fontSize: "10px",
@@ -333,7 +337,10 @@ function MessageList(props) {
                 }}
                 tag="span"
               >
-                {new Date().toLocaleDateString()}
+                {new Date(mensagem.created_at).toLocaleDateString("pt-br", {
+                  hour: "numeric",
+                  minute: "numeric",
+                })}
               </Text>
 
               <Icon
