@@ -117,6 +117,7 @@ export default function ChatPage() {
             popUp={popUp}
             setPopUp={setPopUp}
             open={open}
+            currentUser={currentUser}
           />
 
           {/* {listMensagem.map((mensagemAtual) => {
@@ -338,41 +339,21 @@ function MessageList(props) {
               <Icon
                 name="FaTrash"
                 styleSheet={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  margin: "14px",
-                  width: "14px",
-                  right: "24px",
-                  position: "absolute",
-                  alignSelf: "center",
-                  justifyContent: "space-between",
-                  hover: { color: "reds" },
+                  display:
+                    props.currentUser === mensagem.from ? "block" : "none",
+                  marginLeft: "auto",
+                  marginRight: ".7rem",
+                  transition: ".4s ease all",
+                  cursor: "pointer",
+                  hover: {
+                    color: "grey",
+                  },
                 }}
                 onClick={(e) => {
                   e.preventDefault();
                   handleDelete(mensagem.id);
                 }}
               />
-              {/* <Box
-                styleSheet={{
-                  margin: "14px",
-                  display: "flex",
-                  position: "absolute",
-                  alignSelf: "center",
-                  width: "14px",
-                  right: "24px",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleDelete(mensagem.id);
-                }}
-              >
-                <Icon name="FaTrash" />
-              </Box> */}
             </Box>
             {mensagem.text.startsWith(":sticker:") ? (
               <Image src={mensagem.text.replace(":sticker:", "")} />
