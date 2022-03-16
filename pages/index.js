@@ -56,7 +56,7 @@ export default function HomePage() {
     let name = e.target.value;
 
     if (name.length <= 2 || name === 404) {
-      // CORRIGIR A IMAGEM AO RECEBER 404 ----------------------------------------
+      //TODO: CORRIGIR A IMAGEM AO RECEBER 404 ----------------------------------------
       setImage(STANDERT_USER);
     } else {
       setImage(`https://github.com/${name}.png`);
@@ -72,8 +72,15 @@ export default function HomePage() {
         }
       );
     }
-    // CORRIGIR O USERNAME AO APAGAR O NOME DO USUARIO-----------------------------------
   }, [username]);
+
+  const handleName = () => {
+    if (username.length > 2) {
+      return data.name || data.login;
+    } else {
+      return "";
+    }
+  };
 
   return (
     <>
@@ -201,7 +208,8 @@ export default function HomePage() {
                 borderRadius: "1000px",
               }}
             >
-              {data.name || data.login}
+              {handleName()}
+              {/* {data.name || data.login} */}
             </Text>
           </Box>
           {/* Photo Area */}

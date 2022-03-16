@@ -159,7 +159,7 @@ export default function ChatPage() {
                 color: appConfig.theme.colors.neutrals[200],
               }}
             ></TextField>
-            {/* COLOCAR O BOTÃO DE SEND DENTRO DA CAIXA DE MENSAGEM ------------------------------------------------- */}
+            {/*TODO: COLOCAR O BOTÃO DE SEND DENTRO DA CAIXA DE MENSAGEM ------------------------------------------------- */}
 
             <Button
               styleSheet={{
@@ -279,6 +279,7 @@ function MessageList(props) {
               <Avatar
                 aria-owns={open ? "mouse-over-popover" : undefined}
                 aria-haspopup="true"
+                cursor="pointer"
                 onMouseEnter={(e) => {
                   props.setPopUp(
                     // gambiarras feelings
